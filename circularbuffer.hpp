@@ -64,7 +64,7 @@ class circular_buffer {
     }
 
     /*!
-     * \breif Removes all elements form the circular buffer.
+     * \breif Removes all elements from the circular buffer.
      */
     void clear(void) {
         std::lock_guard<std::mutex> lock(mutex_);
