@@ -123,11 +123,13 @@ TEST_F(CircularBufferTest, Peek) {
     }
 
     // Remove 2 elements and add 1 element.
-    for (uint32_t i = 0; i < (BUF_SIZE / 2); i++) {
+    for (uint32_t i = 0; i < 2; i++) {
         ASSERT_EQ(cbuf_.pop_front(data[i]), true);
-        data[i] = data[i + (BUF_SIZE / 2)];
     }
-    for (uint32_t i = (BUF_SIZE / 2); i < BUF_SIZE - 1; i++) {
+    for (uint32_t i = 0; i < BUF_SIZE - 2; i++) {
+        data[i] = data[i + 2];
+    }
+    for (uint32_t i = BUF_SIZE - 2; i < BUF_SIZE - 1; i++) {
         data[i] = 20 + i;
         ASSERT_EQ(cbuf_.push_back(data[i]), true);
     }
@@ -140,8 +142,8 @@ TEST_F(CircularBufferTest, Peek) {
     }
 
     // Fill the buffer again
-    for (uint32_t i = (BUF_SIZE / 2) + 1; i < BUF_SIZE; i++) {
-        data[i] = 10 + i;
+    for (uint32_t i = BUF_SIZE - 1; i < BUF_SIZE; i++) {
+        data[i] = 20 + i;
         ASSERT_EQ(cbuf_.push_back(data[i]), true);
     }
 
