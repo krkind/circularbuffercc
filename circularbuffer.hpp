@@ -167,18 +167,6 @@ public:
     bool empty() const { return (count_ == 0); };
 
 private:
-    // Helper for forwarding the element to output arguments
-    template <typename U>
-    void assign_element(T& src, U& dest) {
-        dest = src;
-    }
-
-    template <typename U, typename... Args>
-    void assign_element(T& src, U& dest, Args&... rest) {
-        dest = src;
-        assign_element(src, rest...);
-    }
-
     std::mutex mutex_;
     std::unique_ptr<T[]> buf_;  // Pointer to the buffer
     size_t write_pos_ = 0;      // Write pointer
