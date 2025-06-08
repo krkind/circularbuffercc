@@ -7,9 +7,9 @@ The added unittest uses the googletest framework and the CMake build system.
 
 ### Follow the steps below for building the unittest
 
-1. Install the CMake,
+1. Install the CMake,  
    if you run on an Ubuntu machine: ```sudo apt install cmake```  
-   if you run on an Nixos machine: ```nix develop -c $SHEL```
+   if you run on an Nixos machine: ```nix develop -c $SHELL```
 
 2. Clone this repo and create a new folder called e.g. *build* inside the repo: ```mkdir -p build```
 
