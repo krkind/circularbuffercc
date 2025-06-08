@@ -35,23 +35,22 @@
  * allocated dynamic memory when it not used anymore. For thread safety
  * std::mutex is used. Its require C++ latest revison 2011.
  */
-
-#ifndef CIRCULARBUFFER_H_
-#define CIRCULARBUFFER_H_
+#pragma once
 
 #include <memory>
 #include <mutex>
+#include <optional>
 
 template <class T>
 class circular_buffer {
-   public:
+public:
     /**
      * @brief The circular buffer constructor.
      *
      * @param[in]   num     Total number of elements that the circular buffer
      *                      can hold.
      */
-    explicit circular_buffer(size_t num) : buf_(std::unique_ptr<T[]>(new T[num])), max_(num) {
+    explicit circular_buffer(size_t num) : buf_(std::make_unique<T[]>(num)), max_(num) {
         // Do nothing.
     }
 
@@ -74,13 +73,15 @@ class circular_buffer {
     }
 
     /**
-     * @brief Adds a new element at the end of the buffer. The "val" content is
-     * copied to the element.
+     * @brief Adds a new element at the end of the buffer. The arguments are
+     * perfectly forwarded to the element's constructor.
      *
-     * @param[in]   val     Const reference to the source to be copied.
-     * @return              True if success, false if the buffer is full.
+     * @tparam Args Argument types for the element's constructor.
+     * @param[in] args Arguments to forward to the element's constructor.
+     * @return True if success, false if the buffer is full.
      */
-    bool push_back(const T &val) {
+    template <typename... Args>
+    bool push_back(Args&&... args) {
         std::lock_guard<std::mutex> lock(mutex_);
 
         // Check if buffer is full
@@ -88,7 +89,7 @@ class circular_buffer {
             return false;
         }
 
-        buf_[write_pos_] = val;
+        buf_[write_pos_] = T(std::forward<Args>(args)...);
         write_pos_ = (write_pos_ + 1) % max_;
         ++count_;
 
@@ -96,28 +97,23 @@ class circular_buffer {
     };
 
     /**
-     * @brief Removes the first element from the buffer. Copies the element
-     * content to the "val" destination.
+     * @brief Removes the first element from the buffer and returns it as an optional.
      *
-     * @param[out]  val     Reference to the destination where the data is to be
-     *                      stored.
-     * @return              True if success, false if the buffer is
-     *                      empty.
+     * @return std::optional<T> containing the popped element, or std::nullopt if the buffer is empty.
      */
-    bool pop_front(T &val) {
+    std::optional<T> pop_front() {
         std::lock_guard<std::mutex> lock(mutex_);
 
-        // Check if empty buffer
         if (count_ == 0) {
-            return false;
+            return std::nullopt;
         }
 
-        val = buf_[read_pos_];
+        T elem = buf_[read_pos_];
         read_pos_ = (read_pos_ + 1) % max_;
         --count_;
 
-        return true;
-    };
+        return std::make_optional(std::move(elem));
+    }
 
     /**
      * @brief Peeks the "num" element from the buffer.
@@ -170,7 +166,19 @@ class circular_buffer {
      */
     bool empty() const { return (count_ == 0); };
 
-   private:
+private:
+    // Helper for forwarding the element to output arguments
+    template <typename U>
+    void assign_element(T& src, U& dest) {
+        dest = src;
+    }
+
+    template <typename U, typename... Args>
+    void assign_element(T& src, U& dest, Args&... rest) {
+        dest = src;
+        assign_element(src, rest...);
+    }
+
     std::mutex mutex_;
     std::unique_ptr<T[]> buf_;  // Pointer to the buffer
     size_t write_pos_ = 0;      // Write pointer
@@ -178,7 +186,5 @@ class circular_buffer {
     size_t count_ = 0;          // Number of added elements in the buffer
     const size_t max_;          // Max Number of elements in the buffer
 };
-
-#endif /* CIRCULARBUFFER_H_ */
 
 /** @} */

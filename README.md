@@ -7,25 +7,25 @@ The added unittest uses the googletest framework and the CMake build system.
 
 ### Follow the steps below for building the unittest
 
-1. Install the CMake, if you run on an Ubuntu machine:
+1. Install the CMake,
+   if you run on an Ubuntu machine: ```sudo apt install cmake```  
+   if you run on an Nixos machine: ```nix develop -c $SHEL```
 
-   ```sudo apt install cmake```
-
-2. Clone this repo and create a new folder called e.g. *build* inside the repo.
+2. Clone this repo and create a new folder called e.g. *build* inside the repo: ```mkdir -p build```
 
 3. Now you shall have the following directory structure:
  ```
    <your path>
-        | circularbuffercc
-            | build
+      | circularbuffercc
+         | build
  ```
 4. Change directory to the new directory ```build```.
 
 5. Generate the makefiles and build the unit test:
 
-   ```<your path>/circularbuffercc/build$ cmake ..```
+   ```<your path>/circularbuffercc/build$ cmake .. -G Ninja```
 
-   ```<your path>/circularbuffercc/build$ make```
+   ```<your path>/circularbuffercc/build$ ninja```
 
 6. Now execute the circularbufffer-gtest:
 
@@ -33,4 +33,4 @@ The added unittest uses the googletest framework and the CMake build system.
 
 7. You can also do
 
-   ```<your path>/circularbuffercc/build$ make test```
+   ```<your path>/circularbuffercc/build$ ninja test```
